@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .alert {
+            padding: 15px;
+            background-color: #2196F3;
+            color: white;
+            margin: 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            position: relative;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .alert.success {background-color: #4CAF50;}
+        .alert.info {background-color: #2196F3;}
+        .alert.warning {background-color: #ff9800;}
+        .alert.error {background-color: #f44336;}
+
+        .closebtn {
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .closebtn:hover {
+            color: black;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+    </style>
+</head>
+<body>
+
+<div id="alert-container" class="alert info">
+    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+    🎉 Welcome to your personalized health dashboard! Explore graphs and health tips below.
+</div>
+
+<div class="marquee-container">
+    <span class="marquee-text">💖 Welcome {{ user.name }} to Your Health Dashboard 💖</span>
+</div>
+
+<marquee behavior="scroll" direction="left" class="scrolling-marquee">
+    🌟 Welcome, {{ user.name }}! Stay Healthy with Health Mate! 🌟
+</marquee>
+
+<div class="dashboard">
+    <h2>Student Health Details</h2>
+    <p><strong>Name:</strong> {{ user.name }}</p>
+    <p><strong>Age:</strong> {{ user.age }}</p>
+    <p><strong>Roll Number:</strong> {{ user.roll_number }}</p>
+    <p><strong>Weight:</strong> {{ user.weight }} kg</p>
+    <p><strong>Height:</strong> {{ user.height }} cm</p>
+    <p><strong>Mobile Number:</strong> {{ user.mobile_number }}</p>
+    <p><strong>Gender:</strong> {{ user.gender }}</p>
+    <p><strong>BMI:</strong> {{ bmi }}</p>
+    <p><strong>Status:</strong> {{ status }}</p>
+    <p><strong>Required Haemoglobin Levels:</strong> {{ haemoglobin }}</p>
+
+    <p><strong>Precautionary Steps:</strong></p>
+    <ul>
+        {% for step in precautions %}
+            <li>{{ step }}</li>
+        {% endfor %}
+    </ul>
+
+    <div>
+        <label for="graphSelection"><strong>Select Graph Type:</strong></label>
+        <select id="graphSelection" onchange="updateGraph()">
+            <option value="bmi">BMI Category Distribution (Bar)</option>
+            <option value="weight">Ideal Weight vs Actual Weight (Bar)</option>
+            <option value="line">BMI Progress (Line)</option>
+            <option value="pie">BMI Category Distribution (Pie)</option>
+            <option value="scatter">BMI Category Distribution (Scatter)</option>
+            <option value="radar">BMI Category (Radar)</option>
+            <option value="doughnut">BMI Category (Doughnut)</option>
+            <option value="polar">BMI Category (Polar Area)</option>
+            <option value="histogram">BMI Histogram</option>
+        </select>
+    </div>
+
+    <h3 id="graphTitle">BMI Category Distribution</h3>
+    <canvas id="graphCanvas" width="400" height="300"></canvas>
+
+    <!-- NEW INDIVIDUAL USER GRAPHS -->
+    <h3>Your Weight vs Ideal Weight</h3>
+    <canvas id="individualWeightGraph" width="400" height="300"></canvas>
+
+    <h3>Your BMI Indicator</h3>
+    <canvas id="individualBMIGraph" width="400" height="300"></canvas>
+
+    <h3>Your Health Overview</h3>
+    <canvas id="individualRadarGraph" width="400" height="300"></canvas>
+
+    <button onclick="downloadReport()">Download Report</button>
+
+    <form method="POST" action="/send_email" style="display:inline;" onsubmit="showAlert('📧 Email has been sent successfully!', 'success')">
+        <button type="submit">Email Report</button>
+    </form>
+
+    <a href="/logout"><button>Logout</button></a>
+
+    <div class="join-buttons">
+        <button onclick="toggleInfo('increaseWeightInfo')">Join Us to Increase Your Weight</button>
+        <button onclick="toggleInfo('decreaseWeightInfo')">Join Us to Decrease Your Weight</button>
+    </div>
+
+    <div id="increaseWeightInfo" style="display: none;">
+        <h3>How to Gain Weight?</h3>
+        <p><strong>Food Items:</strong> Nuts, Avocados, Whole Milk, Rice, Red Meat, Potatoes, Dark Chocolate, Cheese.</p>
+        <p><strong>Exercises:</strong> Strength Training, Squats, Deadlifts, Bench Press, Resistance Workouts.</p>
+        <p><strong>Advantages of Gaining Weight:</strong> Improved Energy Levels, Better Immune System, Muscle Growth.</p>
+        <p><strong>Disadvantages of Being Underweight:</strong> Weak Immunity, Fatigue, Nutrient Deficiencies, Bone Issues.</p>
+    </div>
+
+    <div id="decreaseWeightInfo" style="display: none;">
+        <h3>How to Lose Weight?</h3>
+        <p><strong>Food Items:</strong> Leafy Greens, Chicken Breast, Oats, Whole Eggs, Beans, Fish, Apple Cider Vinegar.</p>
+        <p><strong>Exercises:</strong> Running, HIIT, Cycling, Swimming, Jump Rope, Strength Training.</p>
+        <p><strong>Advantages of Losing Weight:</strong> Reduced Risk of Diseases, Increased Stamina, Improved Mood.</p>
+        <p><strong>Disadvantages of Being Overweight:</strong> Heart Disease, Diabetes, Joint Pain, Sleep Issues.</p>
+    </div>
+</div>
+
+<script>
+    let chart;
+
+    function updateGraph() {
+        const graphType = document.getElementById("graphSelection").value;
+        const graphTitle = document.getElementById("graphTitle");
+        const ctx = document.getElementById("graphCanvas").getContext("2d");
+
+        if (chart) {
+            chart.destroy();
+        }
+
+        fetch("/bmi_data")
+            .then(response => response.json())
+            .then(data => {
+                const labels = ["Underweight", "Normal", "Overweight"];
+                const values = [data.Underweight, data.Normal, data.Overweight];
+
+                let chartType = "bar";
+                let datasetConfig = {
+                    label: "Number of Students",
+                    data: values,
+                    backgroundColor: ["#3498db", "#2ecc71", "#e74c3c"],
+                    borderColor: "#2980b9",
+                    borderWidth: 1
+                };
+
+                if (graphType === "line") chartType = "line";
+                else if (graphType === "pie") chartType = "pie";
+                else if (graphType === "radar") chartType = "radar";
+                else if (graphType === "doughnut") chartType = "doughnut";
+                else if (graphType === "polar") chartType = "polarArea";
+                else if (graphType === "histogram") chartType = "bar";
+                else if (graphType === "scatter") {
+                    chartType = "scatter";
+                    datasetConfig = {
+                        label: "BMI Category Distribution",
+                        data: [
+                            { x: 1, y: data.Underweight },
+                            { x: 2, y: data.Normal },
+                            { x: 3, y: data.Overweight }
+                        ],
+                        backgroundColor: ["#3498db", "#2ecc71", "#e74c3c"],
+                        borderColor: "#2980b9",
+                        borderWidth: 2,
+                        pointRadius: 6
+                    };
+                }
+
+                chart = new Chart(ctx, {
+                    type: chartType,
+                    data: {
+                        labels: labels,
+                        datasets: [datasetConfig]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: { type: graphType === "scatter" ? "linear" : "category" },
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+
+                graphTitle.innerText = `BMI Category Distribution (${graphType.charAt(0).toUpperCase() + graphType.slice(1)})`;
+            })
+            .catch(error => {
+                console.error("Error fetching graph data:", error);
+                graphTitle.innerText = "Error loading graph!";
+            });
+    }
+
+    function drawIndividualGraphs() {
+        const weight = {{ user.weight }};
+        const idealWeight = 22 * ({{ user.height }} / 100) ** 2;
+        const bmi = {{ bmi }};
+        const height = {{ user.height }};
+    
+
+        // Weight vs Ideal Weight
+        new Chart(document.getElementById('individualWeightGraph').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Your Weight', 'Ideal Weight'],
+                datasets: [{
+                    label: 'Weight (kg)',
+                    data: [weight, idealWeight.toFixed(2)],
+                    backgroundColor: ['#e67e22', '#2ecc71']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // BMI Bar
+        new Chart(document.getElementById('individualBMIGraph').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Your BMI'],
+                datasets: [{
+                    label: 'BMI Value',
+                    data: [bmi],
+                    backgroundColor: ['#9b59b6']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Radar Chart
+        new Chart(document.getElementById('individualRadarGraph').getContext('2d'), {
+            type: 'radar',
+            data: {
+                labels: ['BMI', 'Weight', 'Height'],
+                datasets: [{
+                    label: 'Your Stats (Normalized)',
+                    data: [bmi / 40, weight / 150, height / 200],
+                    backgroundColor: 'rgba(52, 152, 219, 0.4)',
+                    borderColor: '#3498db'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        suggestedMin: 0,
+                        suggestedMax: 1
+                    }
+                }
+            }
+        });
+    }
+
+    function downloadReport() {
+        const csvContent = `Name,Age,Roll Number,Weight,Height,Mobile Number,Gender,BMI,Status,Required Haemoglobin\n` +
+            `{{ user.name }},{{ user.age }},{{ user.roll_number }},{{ user.weight }},{{ user.height }},{{ user.mobile_number }},{{ user.gender }},{{ bmi }},{{ status }},{{ haemoglobin }}`;
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "HealthMate_Report.csv";
+        link.click();
+
+        showAlert("📥 Your HealthMate report has been downloaded!", "success");
+    }
+
+    function toggleInfo(sectionId) {
+        document.getElementById("increaseWeightInfo").style.display = "none";
+        document.getElementById("decreaseWeightInfo").style.display = "none";
+        document.getElementById(sectionId).style.display = "block";
+    }
+
+    function showAlert(message, type = "info") {
+        const container = document.createElement("div");
+        container.className = `alert ${type}`;
+        container.innerHTML = `<span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>${message}`;
+        document.body.prepend(container);
+        setTimeout(() => container.remove(), 5000);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        updateGraph();
+        drawIndividualGraphs();
+    });
+</script>
+
+</body>
+</html>
+
+
+

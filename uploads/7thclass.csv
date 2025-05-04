@@ -1,0 +1,28 @@
+name,age,weight,height,gender,roll_number,mobile_number
+B.Ananya,12,44.5,134.62,F,1,-
+P.Bhargavi,12,46.5,154.94,F,2,-
+Mahonvitha,13,50.2,149.86,F,3,-
+M.Varshith,12,43.7,149.86,M,4,-
+K.Moksha,12,36,137.16,M,5,-
+S.kesava,12,26,137.16,M,6,-
+T.Abhijai,12,31,149.86,M,7,-
+P.Sujith,13,46,149.86,M,8,-
+G.Manas,12,26.4,142.24,M,9,-
+Y.Prashanth,13,60.8,152.4,M,10,-
+LDV.Prasad,12,27,137.16,M,11,-
+B.Gowtham,12,41.4,149.86,M,12,-
+D.Revanth,12,33.6,144.78,M,13,-
+Sithu Vardhan,12,33.6,144.78,M,14,-
+Poornin,12,33.3,144.78,M,15,-
+Mahi patel,12,26.2,132.08,F,16,-
+K.Prashul,13,55.6,142.24,M,17,-
+T.Pavan Sai,12,33.7,149.86,M,18,-
+S.Ayush Kumar,13,50.9,142.24,M,19,-
+A.arun,13,51.5,142.24,M,20,-
+Nishanth Chowdary,12,27.1,144.78,M,21,-
+Ananth Rajak,13,58.4,157.48,M,22,-
+D.swetha,12,31.8,142.24,F,23,-
+Ch.Sri Sanjana,12,41.1,142.24,F,24,-
+Ch.Sinduja,13,46.8,149.86,F,25,-
+P.Krishika,13,80.1,154.94,F,26,-
+T.Sana,13,58.1,149.86,F,27,-

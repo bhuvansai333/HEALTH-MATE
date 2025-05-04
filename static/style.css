@@ -1,0 +1,123 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background: #c199c1;
+    margin: 0;
+    padding: 0;
+}
+
+/* Marquee Styling */
+.marquee-container {
+    background: linear-gradient(to right,#E6C7E6, #64398f);
+    padding: 10px;
+    text-align: center;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Container */
+.container, .csv-container, .dashboard {
+    width: 40%;
+    margin: auto;
+    text-align: center;
+    padding: 20px;
+    background: #ffffff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    margin-top: 30px;
+}
+
+/* Form Input Fields */
+input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 2px solid #ff416c;
+    border-radius: 5px;
+    font-size: 16px;
+    outline: none;
+}
+
+/* Buttons */
+button {
+    background: #2E1A47;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    border: none;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #000000(88, 128, 24);
+    color: #d45d5d;
+}
+
+/* Animated Login Section */
+.login-container {
+    position: relative;
+    width: 200px;
+    margin: auto;
+    text-align: center;
+}
+
+.login-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #2E1A47;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s;
+    font-size: 16px;
+}
+
+.login-form {
+    display: none;
+    margin-top: 10px;
+}
+
+/* Show input field on hover */
+.login-container:hover .login-form {
+    display: block;
+}
+
+/* Dashboard Styling */
+.dashboard h2 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.dashboard p {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.dashboard ul {
+    text-align: left;
+    padding: 0;
+    list-style: none;
+}
+
+.dashboard ul li {
+    background: #ca919e;
+    color: white;
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+
+/* Logout Button */
+.dashboard button {
+    background: #2E1A47;
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.dashboard button:hover {
+    background: #b193c0;
+}

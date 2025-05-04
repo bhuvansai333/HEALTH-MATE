@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Mate</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Basic styling remains the same */
+        .marquee-container {
+            background: linear-gradient(to right,#E6C7E6,#663399);
+            padding: 10px;
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .scrolling-marquee {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            background: #2b5163;
+            padding: 8px;
+            margin-top: 10px;
+        }
+
+        .container {
+            width: 40%;
+            margin: auto;
+            text-align: center;
+            padding: 20px;
+            background: #7c5577;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #e56565;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #2E1A47;
+            color: rgb(198, 193, 216);
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background:#0f0e10;
+        }
+
+        .csv-container {
+            width: 40%;
+            margin: auto;
+            text-align: center;
+            padding: 20px;
+            background:#7c5577;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .filter-container {
+            width: 40%;
+            margin: auto;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .filter-container select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #e56565;
+        }
+
+        .user-list {
+            width: 40%;
+            margin: auto;
+            text-align: center;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .user-item {
+            background: #e5d0e5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        /* New style for the login container to align button and form */
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .login-button {
+            width: 50%; /* Adjust width as needed */
+            margin-bottom: 10px;
+        }
+
+        .login-form {
+            display: none; /* Initially hide the form */
+            width: 100%;
+        }
+
+        .login-form.active {
+            display: block; /* Show the form when active */
+        }
+
+        /* Styles for the about section */
+        .about-section {
+            width: 80%;
+            margin: 30px auto;
+            text-align: center;
+            padding: 20px;
+            background: #f8f8f8;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .about-links {
+            margin-top: 15px;
+        }
+
+        .about-links a {
+            color: #333;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+
+        .about-links a:hover {
+            color: #663399;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="marquee-container">
+        <span class="marquee-text">💖 Welcome to Health Mate - Your Personal Health Guide 💖</span>
+    </div>
+
+    <marquee behavior="scroll" direction="left" class="scrolling-marquee">
+        🌟 Welcome to Health Mate - Your Personal Health Guide! Stay Healthy, Stay Happy! 🌟
+    </marquee>
+
+    <div class="container">
+        <h2>Register</h2>
+        <form action="/register" method="post">
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="number" name="age" placeholder="Age" required>
+            <input type="text" name="roll_number" placeholder="Roll Number" required>
+            <input type="email" name="email" placeholder="Email Address"> <input type="text" name="weight" placeholder="Weight (kg)" required>
+            <input type="text" name="height" placeholder="Height (cm)" required>
+            <input type="tel" name="mobile" placeholder="Mobile Number" required>
+            <select name="gender">
+                <option value="" disabled selected>Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+            <button type="submit">Register</button>
+        </form>
+
+        <h2>Login</h2>
+        <div class="login-container">
+            <button class="login-button" onclick="toggleLoginForm()">Login</button>
+            <form class="login-form" action="/login" method="post">
+                <input type="text" name="roll_number" placeholder="Enter Roll Number" required>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="csv-container">
+        <h2>Upload CSV</h2>
+        <form action="/upload_csv" method="post" enctype="multipart/form-data">
+            <input type="file" name="csv_file" accept=".csv" required>
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+
+    <div class="filter-container">
+        <label for="filter">Filter by:</label>
+        <select id="filter">
+            <option value="All">All</option>
+            <option value="Overweight">Overweight</option>
+            <option value="Underweight">Underweight</option>
+        </select>
+        <button onclick="downloadFilteredData()">Download Filtered Data</button>
+    </div>
+
+    <div class="user-list" id="userList">
+
+    </div>
+
+    <div class="about-section">
+        <h2>About Health Mate</h2>
+        <p>Health Mate is your personal health companion, designed to help you track and understand your health metrics. We provide tools for registration, data management, and insights into your well-being.</p>
+        <div class="about-links">
+            <a href="/aboutus">About Us</a> | <a href="/contactus">Contact Us</a> | <a href="/feedback">Feedback</a>
+        </div>
+    </div>
+
+    <script>
+        // Function to toggle the visibility of the login form
+        function toggleLoginForm() {
+            const loginForm = document.querySelector('.login-form');
+            loginForm.classList.toggle('active');
+        }
+
+        async function fetchUsers() {
+            try {
+                let response = await fetch("/users");
+                let data = await response.json();
+
+                let userList = document.getElementById("userList");
+                userList.innerHTML = ""; // Clear previous user entries
+
+                // Display users by category
+                Object.keys(data).forEach(category => {
+                    data[category].forEach(name => {
+                        let userItem = document.createElement("div");
+                        userItem.className = "user-item";
+                        userItem.dataset.status = category;
+                        userItem.textContent = `${name} - ${category}`;
+                        userList.appendChild(userItem);
+                    });
+                });
+            } catch (error) {
+                console.error("Error fetching users:", error);
+            }
+        }
+
+        // Filter functionality
+        document.getElementById("filter").addEventListener("change", function () {
+            let filterValue = this.value;
+            let users = document.querySelectorAll(".user-item");
+
+            users.forEach(user => {
+                let status = user.dataset.status;
+                user.style.display = (filterValue === "All" || status === filterValue) ? "block" : "none";
+            });
+        });
+
+        // Download filtered data as CSV
+        function downloadFilteredData() {
+            let users = document.querySelectorAll(".user-item");
+            let csvContent = "Name,Status\n";
+
+            users.forEach(user => {
+                if (user.style.display !== "none") {
+                    let userData = user.textContent.split(" - ");
+                    csvContent += `${userData[0]},${userData[1]}\n`;
+                }
+            });
+
+            let blob = new Blob([csvContent], { type: "text/csv" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "Filtered_HealthMate_Data.csv";
+            link.click();
+        }
+
+        // Fetch users when the page loads
+        document.addEventListener("DOMContentLoaded", fetchUsers);
+    </script>
+
+</body>
+</html>
